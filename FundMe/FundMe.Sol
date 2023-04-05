@@ -8,18 +8,18 @@ pragma solidity ^0.8.0;
 
 contract FundMe {
     //initialise contract owner address
-    address public owner;
+    address public immutable i_owner;
 
     // use the external library to perform price conversions
     using PriceConverter for uint256;
 
     // assign the owner to the contract that deploys the address
     constructor() {
-        owner = msg.sender;
+        i_owner = msg.sender;
     }
 
     // create a minimum limit in USD for funding the Smart Contract
-    uint256 public minimumUSD = 50 * 1e18;
+    uint256 public constant MINIMUM_USD = 50 * 1e18;
 
     //record the funders to a list, and create mapping to identify how much they have contributed
     address[] public funders;
@@ -28,7 +28,7 @@ contract FundMe {
     // allow the function to recieve ether and check whether the value to be sent meets the requirement, otherwise revert
     function fund() public payable {
         require(
-            msg.value.getConversionRate() >= minimumUSD,
+            msg.value.getConversionRate() >= MINIMUM_USD,
             "Didn't Send Enough"
         );
         // record funder details
@@ -61,7 +61,7 @@ contract FundMe {
 
     // if applied to functions, checks this code first before continuing
     modifier onlyOwner() {
-        require(msg.sender == owner);
+        require(msg.sender == i_owner);
         _;
     }
 }
