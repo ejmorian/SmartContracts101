@@ -1,0 +1,28 @@
+// Title: Fund Me
+//Get funds from users
+//Withdraw funds
+//set a minimum funding value USD
+
+//SPDX-License-Identifier: MIT
+
+import "./PriceConverter.sol";
+
+pragma solidity ^0.8.0;
+
+contract FundMe {
+    using PriceConverter for uint256;
+
+    uint256 public minimumUSD = 50 * 1e18;
+
+    address[] public funders;
+    mapping(address => uint256) public addressToAmountFunded;
+
+    function fund() public payable {
+        require(
+            msg.value.getConversionRate() >= minimumUSD,
+            "Didn't Send Enough"
+        );
+        funders.push(msg.sender);
+        addressToAmountFunded[msg.sender] = msg.value;
+    }
+}
