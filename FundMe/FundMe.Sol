@@ -1,7 +1,4 @@
 // Title: Fund Me
-//Get funds from users
-//Withdraw funds
-//set a minimum funding value USD
 
 //SPDX-License-Identifier: MIT
 
@@ -10,19 +7,61 @@ import "./PriceConverter.sol";
 pragma solidity ^0.8.0;
 
 contract FundMe {
+    //initialise contract owner address
+    address public owner;
+
+    // use the external library to perform price conversions
     using PriceConverter for uint256;
 
+    // assign the owner to the contract that deploys the address
+    constructor() {
+        owner = msg.sender;
+    }
+
+    // create a minimum limit in USD for funding the Smart Contract
     uint256 public minimumUSD = 50 * 1e18;
 
+    //record the funders to a list, and create mapping to identify how much they have contributed
     address[] public funders;
     mapping(address => uint256) public addressToAmountFunded;
 
+    // allow the function to recieve ether and check whether the value to be sent meets the requirement, otherwise revert
     function fund() public payable {
         require(
             msg.value.getConversionRate() >= minimumUSD,
             "Didn't Send Enough"
         );
+        // record funder details
         funders.push(msg.sender);
         addressToAmountFunded[msg.sender] = msg.value;
+    }
+
+    //allow only the owner to be able to withdraw
+    function Withdraw() public onlyOwner {
+        //reset the funders mapping
+        for (
+            uint256 funderIndex = 0;
+            funderIndex < funders.length;
+            funderIndex++
+        ) {
+            address funder = funders[funderIndex];
+
+            addressToAmountFunded[funder] = 0;
+        }
+
+        //reset funders address list
+        funders = new address[](0);
+
+        //finally, send to the msg.sender the balance of this account
+        (bool callSuccess, ) = payable(msg.sender).call{
+            value: address(this).balance
+        }("");
+        require(callSuccess, "error");
+    }
+
+    // if applied to functions, checks this code first before continuing
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
     }
 }
