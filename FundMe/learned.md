@@ -10,6 +10,10 @@ Topics I learned about in this Fund Me smart contracts includes:
 
 - ABI instances need to be created to specify which contract it applies to.
 
+- Use chainlink AggregatorV3 ABI
+
+- perform calculation in terms of 1e18
+
 - require method and reverts
 
 - Payable Wallets
@@ -19,3 +23,13 @@ Topics I learned about in this Fund Me smart contracts includes:
 - msg.sender (refer to the sender address)
 
 -  Tuples and how to access tuple items
+
+- Use Constructor
+
+- sending eth using (transfer, send, call)
+
+- create a library, create modifier, make function that only owner can call such as withdraw.
+
+- Add recieve() and fallback() function
+
+- optimise gas efficiency by using constant and immutable modifiers

@@ -6,6 +6,9 @@ import "./PriceConverter.sol";
 
 pragma solidity ^0.8.0;
 
+//gas optimisations
+//constant and immutable
+
 contract FundMe {
     //initialise contract owner address
     address public immutable i_owner;
@@ -16,6 +19,16 @@ contract FundMe {
     // assign the owner to the contract that deploys the address
     constructor() {
         i_owner = msg.sender;
+    }
+
+    //if funders sends money without using the fund function and has empty msg.data, call this recieve.
+    receive() external payable {
+        fund();
+    }
+
+    //if funders sends money but incorrectly sent an invalid msg.data, call this fallback.
+    fallback() external payable {
+        fund();
     }
 
     // create a minimum limit in USD for funding the Smart Contract
