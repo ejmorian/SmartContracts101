@@ -4,10 +4,10 @@
 
 import "./PriceConverter.sol";
 
-pragma solidity ^0.8.0;
-
+pragma solidity ^0.8.8;
 //gas optimisations
 //constant and immutable
+error UnAuthorized();
 
 contract FundMe {
     //initialise contract owner address
@@ -74,7 +74,9 @@ contract FundMe {
 
     // if applied to functions, checks this code first before continuing
     modifier onlyOwner() {
-        require(msg.sender == i_owner);
+        if (msg.sender != i_owner) {
+            revert UnAuthorized();
+        }
         _;
     }
 }
