@@ -1,0 +1,12 @@
+{
+  "name": "hardhat-fund-me",
+  "version": "1.0.0",
+  "description": "hardhat fund me fcc",
+  "author": "ejmorian",
+  "license": "ISC",
+  "devDependencies": {
+    "@chainlink/contracts": "^0.6.1",
+    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "hardhat": "^2.13.0"
+  }
+}
