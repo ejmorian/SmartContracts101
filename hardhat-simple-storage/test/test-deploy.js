@@ -18,14 +18,25 @@ describe("SimpleStorage", async () => {
       // expect
 
       assert.equal(currentValue.toString(), expectedValue);
+      // expect(currentValue.toString()).to.equal(expectedValue);
     })
 
     it("Update favourite number when we call setFavouiteNumber", async () => {
-        await simpleStorage.setFavouriteNumber("101").wait(1);
+        const transactionResponse = await simpleStorage.setFavouriteNumber("101");
+        await transactionResponse.wait(1)
         const updatedNumber = await simpleStorage.favouriteNumber();
         const expectedValue = 101;
 
         assert.equal(updatedNumber.toString(), expectedValue);
+    })
+
+    it("mapping of person and their favourite number matches", async ()=>{
+      const transactionResponse = await simpleStorage.setPeopleFavouriteNumber("JMorian", 101);
+      await transactionResponse.wait(1)
+      const personFavouriteNumber = await simpleStorage.peopleToFavouriteNumber("JMorian");
+      const favouriteNumber = 101;
+
+      assert.equal(personFavouriteNumber, favouriteNumber);
     })
 
 })
