@@ -1,4 +1,11 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("@nomiclabs/hardhat-solhint");
+
+// testing packages
+require("hardhat-gas-reporter");
+require("solidity-coverage")
+
+// hide keys
 require("dotenv").config();
 
 SEPOLIA_RPC = process.env.SEPOLIA_RPC;
