@@ -1,11 +1,41 @@
-const {ethers} = require("hardhat");
+const {ethers, run, network} = require("hardhat");
 
 const main = async () => {
+    // testnet wallet
+    // let seploliaWallet = await new ethers.Wallet.fromEncryptedJson("../.encryptedKey.json", process.env.PASSWORD);
+    // seploliaWallet.connect(network.sepolia);
+
     const simpleStorageFactory = await ethers.getContractFactory("SimpleStorage");
     console.log("deploying contract...");
     const simpleStorage = await simpleStorageFactory.deploy();
-    simpleStorage.deployed();
-    console.log(`succesful. contract:${simpleStorage.address}`);
+    await simpleStorage.deployTransaction.wait(3)
+    console.log(`succesful ->> address : ${simpleStorage.address}`);
+
+    if (network.config.chainId === 11155111){
+        await verify(simpleStorage.address, []);
+    } else{
+        console.log("cannot verify contract.")
+    }
+    console.log("done");
+}
+
+// verify contract on etherscan programmatically
+const verify = async (contract_address, args) => {
+    // using CLI: npx hardhat verify --network testnet DEPLOYED_CONTRACT_ADDRESS "Constructor argument 1";
+    console.log("verifying contract... ");
+    try{
+        await run("verify", {
+            address: contract_address,
+            constructorArgsParams: args
+        })
+    }catch(e){
+        if(e.message.toLowerCase().includes("verified")){
+            console.log("Contract is already verified..")
+        }else{
+            console.log(e);
+        }
+    }
+
 
 
 }

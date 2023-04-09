@@ -11,6 +11,7 @@
   "license": "ISC",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "@nomiclabs/hardhat-etherscan": "^3.1.7",
     "dotenv": "^16.0.3",
     "fs": "^0.0.1-security",
     "hardhat": "^2.13.0",
