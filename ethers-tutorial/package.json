@@ -1,0 +1,18 @@
+{
+  "name": "ethers-tutorial",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "compile": "npx solc ./contracts/*.sol --abi --bin -o ./compile" 
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "dotenv": "^16.0.3",
+    "ethers": "^6.3.0",
+    "fs": "^0.0.1-security",
+    "solc": "^0.8.19"
+  }
+}
