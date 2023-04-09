@@ -11,6 +11,8 @@
   "license": "ISC",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "dotenv": "^16.0.3",
+    "fs": "^0.0.1-security",
     "hardhat": "^2.13.0",
     "prettier": "^2.8.7",
     "prettier-plugin-solidity": "^1.1.3"
