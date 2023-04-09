@@ -1,6 +1,5 @@
 const {ethers} = require("ethers");
 const fs = require("fs");
-const { get } = require("http");
 require("dotenv").config();
 
 
