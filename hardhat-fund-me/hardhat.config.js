@@ -1,5 +1,4 @@
 require("@nomicfoundation/hardhat-toolbox")
-require("@nomiclabs/hardhat-solhint")
 
 // testing packages
 require("hardhat-gas-reporter")
@@ -22,5 +21,8 @@ module.exports = {
             chainId: 11155111,
             accounts: [SEPOLIA_KEY],
         },
+    },
+    gasReporter: {
+        enabled: true,
     },
 }
