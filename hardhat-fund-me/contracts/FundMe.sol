@@ -3,72 +3,58 @@
 //SPDX-License-Identifier: MIT
 
 import "./PriceConverter.sol";
-import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 pragma solidity ^0.8.8;
-//gas optimisations
-//constant and immutable
 error UnAuthorized();
 
 contract FundMe {
-  //initialise contract owner address
+  using PriceConverter for uint256;
   address public immutable i_owner;
   AggregatorV3Interface public priceFeedAddress;
 
-  // use the external library to perform price conversions
-  using PriceConverter for uint256;
-
-  // assign the owner to the contract that deploys the address
   constructor(address _priceFeed) {
     priceFeedAddress = AggregatorV3Interface(_priceFeed);
     i_owner = msg.sender;
   }
 
-  //if funders sends money without using the fund function and has empty msg.data, call this recieve.
   receive() external payable {
     fund();
   }
 
-  //if funders sends money but incorrectly sent an invalid msg.data, call this fallback.
   fallback() external payable {
     fund();
   }
 
-  // create a minimum limit in USD for funding the Smart Contract
   uint256 public constant MINIMUM_USD = 50 * 1e18;
 
-  //record the funders to a list, and create mapping to identify how much they have contributed
   address[] public funders;
   mapping(address => uint256) public addressToAmountFunded;
 
-  // allow the function to recieve ether and check whether the value to be sent meets the requirement, otherwise revert
   function fund() public payable {
-    require(msg.value.getConversionRate() >= MINIMUM_USD, "Didn't Send Enough");
-    // record funder details
+    require(
+      msg.value.getConversionRate(priceFeedAddress) >= MINIMUM_USD,
+      "Didn't Send Enough"
+    );
+
     funders.push(msg.sender);
     addressToAmountFunded[msg.sender] = msg.value;
   }
 
-  //allow only the owner to be able to withdraw
   function Withdraw() public onlyOwner {
-    //reset the funders mapping
     for (uint256 funderIndex = 0; funderIndex < funders.length; funderIndex++) {
       address funder = funders[funderIndex];
 
       addressToAmountFunded[funder] = 0;
     }
 
-    //reset funders address list
     funders = new address[](0);
 
-    //finally, send to the msg.sender the balance of this account
     (bool callSuccess, ) = payable(msg.sender).call{
       value: address(this).balance
     }("");
     require(callSuccess, "error");
   }
 
-  // if applied to functions, checks this code first before continuing
   modifier onlyOwner() {
     if (msg.sender != i_owner) {
       revert UnAuthorized();

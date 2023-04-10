@@ -4,6 +4,7 @@ require("dotenv").config()
 require("hardhat-gas-reporter")
 require("solidity-coverage")
 require("hardhat-deploy")
+require("@nomiclabs/hardhat-etherscan")
 
 const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL || "RPC_URL"
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "P_KEY"
@@ -11,7 +12,10 @@ const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "ETHERSCAN_API_KEY"
 const CMC_API_KEY = process.env.CMC_API_KEY || "CMC_KEY"
 
 module.exports = {
-  solidity: "0.8.18",
+  // solidity: "0.8.18",
+  solidity: {
+    compilers: [{version: "0.8.18"}, {version: "0.6.6"}],
+  },
   defaultNetwork: "hardhat",
   networks: {
     localhost: {
@@ -22,6 +26,7 @@ module.exports = {
       url: SEPOLIA_RPC_URL,
       accounts: [PRIVATE_KEY],
       chainId: 11155111,
+      blockConfirmations: 6,
     },
   },
   etherscan: {
