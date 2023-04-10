@@ -1,4 +1,5 @@
 const {ethers, run, network} = require("hardhat");
+require("dotenv").config();
 
 const main = async () => {
     // testnet wallet
@@ -8,13 +9,13 @@ const main = async () => {
     const simpleStorageFactory = await ethers.getContractFactory("SimpleStorage");
     console.log("deploying contract...");
     const simpleStorage = await simpleStorageFactory.deploy();
-    await simpleStorage.deployTransaction.wait(3)
+    await simpleStorage.deployTransaction.wait(1)
     console.log(`succesful ->> address : ${simpleStorage.address}`);
 
-    if (network.config.chainId === 11155111){
+    if (network.config.chainId === 11155111 && process.env.ETHERSCAN_API_KEY){
         await verify(simpleStorage.address, []);
     } else{
-        console.log("cannot verify contract.")
+        console.log("network is most likely local. cannot verify!")
     }
     console.log("done");
 }
