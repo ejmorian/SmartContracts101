@@ -17,9 +17,9 @@ contract FundMe {
 
   address public immutable i_owner;
   uint256 public constant MINIMUM_USD = 50 * 1e18;
-  AggregatorV3Interface public priceFeedAddress;
-  address[] public funders;
-  mapping(address => uint256) public addressToAmountFunded;
+  AggregatorV3Interface public s_priceFeedAddress;
+  address[] public s_funders;
+  mapping(address => uint256) public s_addressToAmountFunded;
 
   modifier onlyOwner() {
     if (msg.sender != i_owner) {
@@ -30,28 +30,46 @@ contract FundMe {
   }
 
   constructor(address _priceFeed) {
-    priceFeedAddress = AggregatorV3Interface(_priceFeed);
+    s_priceFeedAddress = AggregatorV3Interface(_priceFeed);
     i_owner = msg.sender;
   }
 
   function fund() public payable {
     require(
-      msg.value.getConversionRate(priceFeedAddress) >= MINIMUM_USD,
+      msg.value.getConversionRate(s_priceFeedAddress) >= MINIMUM_USD,
       "Didn't Send Enough Eth"
     );
 
-    funders.push(msg.sender);
-    addressToAmountFunded[msg.sender] = msg.value;
+    s_funders.push(msg.sender);
+    s_addressToAmountFunded[msg.sender] = msg.value;
   }
 
-  function withdraw() public onlyOwner {
-    for (uint256 funderIndex = 0; funderIndex < funders.length; funderIndex++) {
-      address funder = funders[funderIndex];
+  // function withdraw() public onlyOwner {
+  //   for (
+  //     uint256 funderIndex = 0;
+  //     funderIndex < s_funders.length;
+  //     funderIndex++
+  //   ) {
+  //     address funder = s_funders[funderIndex];
 
-      addressToAmountFunded[funder] = 0;
+  //     s_addressToAmountFunded[funder] = 0;
+  //   }
+
+  //   s_funders = new address[](0);
+
+  //   (bool callSuccess, ) = payable(msg.sender).call{
+  //     value: address(this).balance
+  //   }("");
+  //   require(callSuccess, "error");
+  // }
+
+  function cheaperWithdraw() public payable onlyOwner {
+    address[] memory funders = s_funders;
+    for (uint256 i = 0; i < funders.length; i++) {
+      address funder = funders[i];
+      s_addressToAmountFunded[funder] = 0;
     }
-
-    funders = new address[](0);
+    s_funders = new address[](0);
 
     (bool callSuccess, ) = payable(msg.sender).call{
       value: address(this).balance
