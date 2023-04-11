@@ -6,6 +6,7 @@ describe("Fund Me", async () => {
   let deployer
   let mockV3Aggregator
   const value = ethers.BigNumber.from(10000000000000000000n)
+  //alternatively can use ethers.utils.parse("1")
 
   beforeEach(async () => {
     deployer = (await getNamedAccounts()).deployer //gets an account from the config
@@ -65,12 +66,8 @@ describe("Fund Me", async () => {
   })
 
   describe("reset record", async () => {
-    let initialDeployerBalance
-
     beforeEach(async () => {
-      fundMe.fund(value)
-      initialDeployerBalance = await ethers.provider.getBalance(fundMe.address)
-      fundMe.withdraw()
+      await fundMe.withdraw()
     })
 
     it("funders list is reset", async () => {
@@ -85,11 +82,28 @@ describe("Fund Me", async () => {
       contractBalance = await ethers.provider.getBalance(fundMe.address)
       assert.equal(contractBalance, 0)
     })
+  })
 
-    it("sent/added to deployers balance", async () => {
-      const deployerBalance = await ethers.provider.getBalance(deployer)
+  it("balance updated accordingly", async () => {
+    await fundMe.fund({value: value})
+    const intialDeployerBalance = await ethers.provider.getBalance(deployer)
+    const intialContractBalance = await ethers.provider.getBalance(
+      fundMe.address
+    )
 
-      assert.ok(deployerBalance > initialDeployerBalance)
-    })
+    const transactionResponse = await fundMe.withdraw()
+    const transactionReciept = await transactionResponse.wait(1)
+
+    const gasCost =
+      transactionReciept.gasUsed * transactionReciept.effectiveGasPrice
+    const DeployerBalance = await ethers.provider.getBalance(deployer)
+    const ContractBalance = await ethers.provider.getBalance(fundMe.address)
+
+    const expected = intialDeployerBalance
+      .add(intialContractBalance)
+      .sub(gasCost)
+
+    assert.equal(ContractBalance, 0)
+    assert.equal(DeployerBalance.toString(), expected.toString())
   })
 })
