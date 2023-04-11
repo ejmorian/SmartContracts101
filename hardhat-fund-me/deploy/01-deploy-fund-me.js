@@ -1,4 +1,4 @@
-const {network, run} = require("hardhat")
+const {network} = require("hardhat")
 const {networkConfig, developmentNetwork} = require("../helper-hardhat-config")
 const verify = require("../utils/verify")
 require("dotenv").config()
