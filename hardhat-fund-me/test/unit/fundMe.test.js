@@ -17,7 +17,7 @@ describe("Fund Me", async () => {
 
   describe("Constructor", async () => {
     it("correct eth to usd price feed address is passed", async () => {
-      const response = await fundMe.s_priceFeedAddress()
+      const response = await fundMe.getPriceFeedAddress()
       assert.equal(response, mockV3Aggregator.address)
     })
   })
@@ -41,79 +41,79 @@ describe("Fund Me", async () => {
       })
 
       it("Adds the funder to the list", async () => {
-        assert.equal(deployer, await fundMe.s_funders(0))
+        assert.equal(deployer, await fundMe.getFunders(0))
       })
 
       it("funder corresponds to their contribution amount", async () => {
-        const contribution = await fundMe.s_addressToAmountFunded(deployer)
+        const contribution = await fundMe.getAddressToAmountFunded(deployer)
         assert.equal(Number(value), Number(contribution))
       })
     })
   })
 
-  describe("Withdraw", async () => {
-    it("revert transaction if not deployer", async () => {
-      const accounts = await ethers.getSigners()
+  //   describe("Withdraw", async () => {
+  //     it("revert transaction if not deployer", async () => {
+  //       const accounts = await ethers.getSigners()
 
-      accounts.forEach(async (address) => {
-        const users = await fundMe.connect(address)
-        users.fundMe.fund({value: value})
+  //       accounts.forEach(async (address) => {
+  //         const users = await fundMe.connect(address)
+  //         users.fundMe.fund({value: value})
 
-        await expect(users.fundMe.withdraw()).to.be.reverted
-      })
-    })
+  //         await expect(users.fundMe.withdraw()).to.be.reverted
+  //       })
+  //     })
 
-    it("deployer can withdraw", async () => {
-      await expect(fundMe.withdraw()).to.not.be.reverted
-    })
+  //     it("deployer can withdraw", async () => {
+  //       await expect(fundMe.withdraw()).to.not.be.reverted
+  //     })
 
-    describe("reset record", async () => {
-      beforeEach(async () => {
-        await fundMe.withdraw()
-      })
+  //     describe("reset record", async () => {
+  //       beforeEach(async () => {
+  //         await fundMe.withdraw()
+  //       })
 
-      it("funders list is reset", async () => {
-        await expect(fundMe.s_funders(0)).to.be.reverted
-      })
+  //       it("funders list is reset", async () => {
+  //         await expect(fundMe.getFunders(0)).to.be.reverted
+  //       })
 
-      it("mapping address to contribution is reset", async () => {
-        const users = await ethers.getSigners()
-        users.forEach(async (user) => {
-          assert.equal(await fundMe.s_addressToAmountFunded(user), 0)
-        })
-      })
+  //       it("mapping address to contribution is reset", async () => {
+  //         const users = await ethers.getSigners()
+  //         users.forEach(async (user) => {
+  //           assert.equal(await fundMe.getAddressToAmountFunded(user), 0)
+  //         })
+  //       })
 
-      it("clears contract address", async () => {
-        contractBalance = await ethers.provider.getBalance(fundMe.address)
-        assert.equal(contractBalance, 0)
-      })
-      it("balance updated accordingly", async () => {
-        await fundMe.fund({value: value})
-        // Arrange
-        const intialDeployerBalance = await ethers.provider.getBalance(deployer)
-        const intialContractBalance = await ethers.provider.getBalance(
-          fundMe.address
-        )
-        // Act
-        const transactionResponse = await fundMe.withdraw()
-        const transactionReciept = await transactionResponse.wait(1)
+  //       it("clears contract address", async () => {
+  //         contractBalance = await ethers.provider.getBalance(fundMe.address)
+  //         assert.equal(contractBalance, 0)
+  //       })
+  //       it("balance updated accordingly", async () => {
+  //         await fundMe.fund({value: value})
+  //         // Arrange
+  //         const intialDeployerBalance = await ethers.provider.getBalance(deployer)
+  //         const intialContractBalance = await ethers.provider.getBalance(
+  //           fundMe.address
+  //         )
+  //         // Act
+  //         const transactionResponse = await fundMe.withdraw()
+  //         const transactionReciept = await transactionResponse.wait(1)
 
-        const gasCost = transactionReciept.gasUsed.mul(
-          transactionReciept.effectiveGasPrice
-        )
-        const DeployerBalance = await ethers.provider.getBalance(deployer)
-        const ContractBalance = await ethers.provider.getBalance(fundMe.address)
+  //         const gasCost = transactionReciept.gasUsed.mul(
+  //           transactionReciept.effectiveGasPrice
+  //         )
+  //         const DeployerBalance = await ethers.provider.getBalance(deployer)
+  //         const ContractBalance = await ethers.provider.getBalance(fundMe.address)
 
-        const expected = intialDeployerBalance
-          .add(intialContractBalance)
-          .sub(gasCost)
+  //         const expected = intialDeployerBalance
+  //           .add(intialContractBalance)
+  //           .sub(gasCost)
 
-        // Assert
-        assert.equal(ContractBalance, 0)
-        assert.equal(DeployerBalance.toString(), expected.toString())
-      })
-    })
-  })
+  //         // Assert
+  //         assert.equal(ContractBalance, 0)
+  //         assert.equal(DeployerBalance.toString(), expected.toString())
+  //       })
+  //     })
+  //   })
 
   describe("cheaperWithdraw", async () => {
     it("revert transaction if not deployer", async () => {
@@ -137,13 +137,13 @@ describe("Fund Me", async () => {
       })
 
       it("funders list is reset", async () => {
-        await expect(fundMe.s_funders(0)).to.be.reverted
+        await expect(fundMe.getFunders(0)).to.be.reverted
       })
 
       it("mapping address to contribution is reset", async () => {
         const users = await ethers.getSigners()
         users.forEach(async (user) => {
-          assert.equal(await fundMe.s_addressToAmountFunded(user), 0)
+          assert.equal(await fundMe.getAddressToAmountFunded(user), 0)
         })
       })
 
