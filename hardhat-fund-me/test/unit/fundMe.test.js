@@ -53,11 +53,14 @@ describe("Fund Me", async () => {
 
   describe("Withdraw", async () => {
     it("revert transaction if not deployer", async () => {
-      const {users} = await getNamedAccounts()
-      const fundMe2 = await ethers.getContract("FundMe", users)
+      const accounts = await ethers.getSigners()
 
-      await expect(fundMe2.withdraw()).to.be.reverted
-      //   fundMe = await ethers.getContract("FundMe", user)
+      accounts.forEach(async (address) => {
+        const users = await fundMe.connect(address)
+        users.fundMe.fund({value: value})
+
+        await expect(users.fundMe.withdraw()).to.be.reverted
+      })
     })
   })
 
@@ -86,16 +89,18 @@ describe("Fund Me", async () => {
 
   it("balance updated accordingly", async () => {
     await fundMe.fund({value: value})
+    // Arrange
     const intialDeployerBalance = await ethers.provider.getBalance(deployer)
     const intialContractBalance = await ethers.provider.getBalance(
       fundMe.address
     )
-
+    // Act
     const transactionResponse = await fundMe.withdraw()
     const transactionReciept = await transactionResponse.wait(1)
 
-    const gasCost =
-      transactionReciept.gasUsed * transactionReciept.effectiveGasPrice
+    const gasCost = transactionReciept.gasUsed.mul(
+      transactionReciept.effectiveGasPrice
+    )
     const DeployerBalance = await ethers.provider.getBalance(deployer)
     const ContractBalance = await ethers.provider.getBalance(fundMe.address)
 
@@ -103,6 +108,7 @@ describe("Fund Me", async () => {
       .add(intialContractBalance)
       .sub(gasCost)
 
+    // Assert
     assert.equal(ContractBalance, 0)
     assert.equal(DeployerBalance.toString(), expected.toString())
   })
