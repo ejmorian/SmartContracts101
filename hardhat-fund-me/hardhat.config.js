@@ -1,6 +1,6 @@
+require("dotenv").config({path: __dirname + "/.env"})
 require("@nomicfoundation/hardhat-toolbox")
 require("@nomiclabs/hardhat-etherscan") //adds verify task
-require("dotenv").config()
 require("hardhat-gas-reporter")
 require("solidity-coverage")
 require("hardhat-deploy")
@@ -36,15 +36,15 @@ module.exports = {
     enabled: true,
     currency: "USD",
     coinmarketcap: CMC_API_KEY,
-    outputFile: "./test/gasreport.txt",
     noColors: true,
+    outputFile: "./gas-report.txt",
   },
   namedAccounts: {
     deployer: {
       default: 0,
     },
     users: {
-      default: 0,
+      default: 1,
     },
   },
 }
