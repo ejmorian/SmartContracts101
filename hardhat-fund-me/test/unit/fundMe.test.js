@@ -78,7 +78,10 @@ describe("Fund Me", async () => {
     })
 
     it("mapping address to contribution is reset", async () => {
-      assert.equal(await fundMe.addressToAmountFunded(deployer), 0)
+      const users = await ethers.getSigners()
+      users.forEach(async (user) => {
+        assert.equal(await fundMe.addressToAmountFunded(user), 0)
+      })
     })
 
     it("clears contract address", async () => {
