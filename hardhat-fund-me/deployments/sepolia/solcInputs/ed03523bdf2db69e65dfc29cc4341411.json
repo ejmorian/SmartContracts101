@@ -1,0 +1,41 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ninterface AggregatorV3Interface {\n  function decimals() external view returns (uint8);\n\n  function description() external view returns (string memory);\n\n  function version() external view returns (uint256);\n\n  function getRoundData(uint80 _roundId)\n    external\n    view\n    returns (\n      uint80 roundId,\n      int256 answer,\n      uint256 startedAt,\n      uint256 updatedAt,\n      uint80 answeredInRound\n    );\n\n  function latestRoundData()\n    external\n    view\n    returns (\n      uint80 roundId,\n      int256 answer,\n      uint256 startedAt,\n      uint256 updatedAt,\n      uint80 answeredInRound\n    );\n}\n"
+    },
+    "contracts/FundMe.sol": {
+      "content": "// Title: Fund Me\n\n//SPDX-License-Identifier: MIT\n\nimport \"./PriceConverter.sol\";\n\npragma solidity ^0.8.8;\n\nerror FundMe__NotOwner();\n\n/** @title A contract for crowd funding */\n/**@author ejmorian */\n/**@notice this contract is to demo a funding contract */\n/**@dev this implements  price feeds as our library */\ncontract FundMe {\n  using PriceConverter for uint256;\n\n  address public immutable i_owner;\n  uint256 public constant MINIMUM_USD = 50 * 1e18;\n  AggregatorV3Interface private s_priceFeedAddress;\n  address[] private s_funders;\n  mapping(address => uint256) private s_addressToAmountFunded;\n\n  modifier onlyOwner() {\n    if (msg.sender != i_owner) {\n      revert FundMe__NotOwner();\n    }\n    // require(msg.sender == i_owner, \"you are not the deployer\");\n    _;\n  }\n\n  constructor(address _priceFeed) {\n    s_priceFeedAddress = AggregatorV3Interface(_priceFeed);\n    i_owner = msg.sender;\n  }\n\n  function fund() public payable {\n    require(\n      msg.value.getConversionRate(s_priceFeedAddress) >= MINIMUM_USD,\n      \"Didn't Send Enough Eth\"\n    );\n\n    s_funders.push(msg.sender);\n    s_addressToAmountFunded[msg.sender] = msg.value;\n  }\n\n  // function withdraw() public onlyOwner {\n  //   for (\n  //     uint256 funderIndex = 0;\n  //     funderIndex < s_funders.length;\n  //     funderIndex++\n  //   ) {\n  //     address funder = s_funders[funderIndex];\n\n  //     s_addressToAmountFunded[funder] = 0;\n  //   }\n\n  //   s_funders = new address[](0);\n\n  //   (bool callSuccess, ) = payable(msg.sender).call{\n  //     value: address(this).balance\n  //   }(\"\");\n  //   require(callSuccess, \"error\");\n  // }\n\n  function cheaperWithdraw() public payable onlyOwner {\n    address[] memory funders = s_funders;\n    for (uint256 i = 0; i < funders.length; i++) {\n      address funder = funders[i];\n      s_addressToAmountFunded[funder] = 0;\n    }\n    s_funders = new address[](0);\n\n    (bool callSuccess, ) = payable(msg.sender).call{\n      value: address(this).balance\n    }(\"\");\n    require(callSuccess, \"error\");\n  }\n\n  function getPriceFeedAddress() public view returns (AggregatorV3Interface) {\n    return s_priceFeedAddress;\n  }\n\n  function getFunders(uint _index) public view returns (address) {\n    return s_funders[_index];\n  }\n\n  function getAddressToAmountFunded(\n    address _funderAddress\n  ) public view returns (uint256) {\n    return s_addressToAmountFunded[_funderAddress];\n  }\n}\n"
+    },
+    "contracts/PriceConverter.sol": {
+      "content": "//SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\n//import chainlink data feeds ABI\nimport \"@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol\";\n\nlibrary PriceConverter {\n  // gets the price of 1ETH to USD\n  function getPrice(\n    AggregatorV3Interface priceFeed\n  ) internal view returns (uint256) {\n    (, int256 answer, , , ) = priceFeed.latestRoundData();\n    return uint256(answer * 1e10);\n  }\n\n  function getConversionRate(\n    uint256 _ethAmount,\n    AggregatorV3Interface priceFeed\n  ) internal view returns (uint256) {\n    return ((_ethAmount * getPrice(priceFeed)) / 1e18);\n  }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

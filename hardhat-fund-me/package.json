@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "fund": "npx hardhat run scripts/fund.js --network localhost",
+    "withdraw": "npx hardhat run scripts/withdraw.js --network localhost",
+    "test": "npx hardhat test",
+    "coverage": "npx hardhat coverage",
+    "compile": "npx hardhat compile"
   },
   "keywords": [],
   "author": "",
